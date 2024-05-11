@@ -4,7 +4,7 @@ The bot that's always watching... A statistics bot for skap.io, which sits in ga
 ## Running tokei-skap
 ```shell
 git clone https://github.com/premiering/tokei-skap.git
-cd tokei-skap-master
+cd tokei-skap
 npm i
 npm start
 ```
