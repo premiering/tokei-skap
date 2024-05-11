@@ -4,9 +4,18 @@ import { updateHighest } from "./db";
 import { GAMES_PACKET, TokeiSocket, UPDATE_STATES_PACKET } from "./socket";
 import { tokeiLog } from "./util";
 
+interface TokeiBotData {
+    lastPlayerCount: number,
+    connectedToOverworld: boolean
+}
+
 let tokeiSocket: TokeiSocket;
-let lastPlayerCount = 0;
-let connectedToOverworld = false;
+let botData: TokeiBotData = {
+    lastPlayerCount: 0,
+    connectedToOverworld: false
+};
+
+const achievedCache = new Map<string, Map<string, number>>();
 
 export async function initTokeiBot() {
     if (tokeiSocket && tokeiSocket.isOpen()) {
@@ -23,7 +32,7 @@ export async function initTokeiBot() {
         }, config.playerCountIntervalMs)
     });
     socket.onPacket(GAMES_PACKET, updatePlayerCount);
-    socket.onPacket(UPDATE_STATES_PACKET, updateExodusLevels);
+    socket.onPacket(UPDATE_STATES_PACKET, updateAreaAchievements);
     tokeiSocket = socket;
 }
 
@@ -32,27 +41,25 @@ export function getBotUsername(): string {
 }
 
 export function getLastPlayerCount(): number {
-    return lastPlayerCount - 1;
+    return botData.lastPlayerCount - 1;
 }
 
 function updatePlayerCount(data: any) {
     // Connect to overworld if not yet connected
-    if (!connectedToOverworld) {
+    if (!botData.connectedToOverworld) {
         const overworld = data.g[0];
         tokeiSocket.sendJoinGame(overworld.id);
-        connectedToOverworld = true;
+        botData.connectedToOverworld = true;
     }
 
     let totalPlayerCount: number = 0;
     data.g.forEach((g: any) => {
         totalPlayerCount += g.players;
     })
-    lastPlayerCount = totalPlayerCount;
+    botData.lastPlayerCount = totalPlayerCount;
 }
 
-const achievedCache = new Map<string, Map<string, number>>();
-
-function updateExodusLevels(data: any) {
+function updateAreaAchievements(data: any) {
     data.m.playerList.forEach((p: any) => {
         const name = p[0] as string;
         const currentArea = p[1] as string;
