@@ -47,7 +47,7 @@ export class TokeiSocket {
             });
         });
         ws.on('error', (ws: WebSocket, err: Error) => {
-            tokeiLog(err.message);
+            tokeiLog(err);
         });
         ws.on('message', (data: any) => {
             const packed = decode(new Uint8Array(data as ArrayBuffer)) as any;
