@@ -1,0 +1,38 @@
+.App {
+    text-align: center;
+}
+
+.App-header {
+    background-color: #030202;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-size: calc(10px + 2vmin);
+    color: white;
+}
+
+h1 {
+    color: rgb(31, 204, 134);
+}
+
+p {
+    color: rgb(120, 120, 120);
+}
+
+.medium-p {
+    font-size: large;
+}
+
+.smaller-p {
+    font-size: medium;
+}
+
+body {
+    margin: 0;
+    font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+        monospace;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
