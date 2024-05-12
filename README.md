@@ -7,6 +7,13 @@ tokei-skap requires an installation of npm and Node.js
 git clone https://github.com/premiering/tokei-skap.git
 cd tokei-skap
 npm i
+```
+And then if you're using pm2 to manage Node processes
+```shell
+pm2 start npm -- start
+```
+Or if you just want to start it normally
+```shell
 npm start
 ```
 That simple! Upon start, tokei-skap will setup the database (using sqlite3) and start the bot.
