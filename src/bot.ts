@@ -7,14 +7,16 @@ import { tokeiLog } from "./util";
 interface TokeiBotState {
     lastPlayerCount: number,
     connectedToOverworld: boolean,
-    achievedCache: Map<string, Map<string, number>>
+    achievedCache: Map<string, Map<string, number>>,
+    lastUpdateState: Date
 }
 
 function defaultBotState(): TokeiBotState {
     return {
         lastPlayerCount: 0,
         connectedToOverworld: false,
-        achievedCache: new Map<string, Map<string, number>>()
+        achievedCache: new Map<string, Map<string, number>>(),
+        lastUpdateState: new Date()
     };
 }
 
@@ -55,7 +57,9 @@ export function getLastPlayerCount(): number {
 
 function updatePlayerCount(data: any) {
     // Connect to overworld if not yet connected
-    if (!botData.connectedToOverworld) {
+    if (!botData.connectedToOverworld || 
+        (new Date().getSeconds() - botData.lastUpdateState.getSeconds()) > config.playerCountIntervalMs
+    ) {
         const overworld = data.g[0];
         tokeiSocket.sendJoinGame(overworld.id);
         botData.connectedToOverworld = true;
@@ -69,6 +73,7 @@ function updatePlayerCount(data: any) {
 }
 
 function updateAreaAchievements(data: any) {
+    botData.lastUpdateState = new Date();
     data.m.playerList.forEach((p: any) => {
         const name = p[0] as string;
         const currentArea = p[1] as string;
