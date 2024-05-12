@@ -2,6 +2,7 @@
 The bot that's always watching... A statistics bot for skap.io, which sits in game and collects data about areas which have been reached. It provides a public API for fetching this data.
 
 ## Running tokei-skap
+tokei-skap requires an installation of npm and Node.js
 ```shell
 git clone https://github.com/premiering/tokei-skap.git
 cd tokei-skap
