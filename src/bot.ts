@@ -24,6 +24,7 @@ export async function initTokeiBot() {
     let playerCountChecker: NodeJS.Timeout;
     const socket = new TokeiSocket(config.skapUrl);
     socket.onLogin(() => {
+        tokeiLog("logged in as " + socket.getBotUsername());
         setTimeout(() => {
             socket.sendRequestGamesList();
         }, 1000)
