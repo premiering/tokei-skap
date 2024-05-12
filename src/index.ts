@@ -12,7 +12,7 @@ import { Database, open } from 'sqlite'
 import { exit } from "process";
 import { db, initSqlite, getAreaLeaderboards, } from "./db";
 import { isAreaTracked, trackedAreas } from "./areas";
-
+const cors = require('cors')
 const app: Express = express();
 
 async function run() {
@@ -24,6 +24,7 @@ async function run() {
   await initSqlite();  
   await initTokeiBot();
 
+  app.use(cors());
   app.use(express.static('public'));
   app.set('view engine', 'pug');
   
