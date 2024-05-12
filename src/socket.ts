@@ -1,6 +1,7 @@
 import { decode, encode } from "@msgpack/msgpack";
 import { WebSocket } from "ws";
 import { randomHexString, tokeiLog } from "./util";
+import { buffer } from "stream/consumers";
 
 export type PacketListener = (packet: any) => void;
 export type CallbackListener = () => void;
@@ -55,8 +56,9 @@ export class TokeiSocket {
                 (this.packetListeners.get(packed.e) as PacketListener)(packed);
             }
         });
-        ws.on('close', (code: number) => {
-            console.log("lost connection to Skap, status: " + code);
+        ws.on('close', (code: number, reason: Buffer) => {
+            tokeiLog("lost connection to Skap, status: " + code);
+            tokeiLog("buffer: " + buffer.toString());
             this.closeListeners.forEach((listener) => {
                 listener();
             })
