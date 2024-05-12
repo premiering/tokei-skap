@@ -16,16 +16,29 @@ export const UPDATE_STATES_PACKET = "updateStates";
 
 export class TokeiSocket {
     private ws: WebSocket;
-    private sendFunction: (e: string, data: any) => void;
+    private url: string;
+    private sendFunction: (e: string, data: any) => void = (e: string, data: any) => {};
     private packetListeners: Map<string, PacketListener> = new Map();
     private openListeners: CallbackListener[] = [];
     private closeListeners: CallbackListener[] = [];
     private loginListeners: LoginListener[] = [];
-    private username: string;
-    private password: string;
+    private username: string = "";
+    private password: string = "";
 
     constructor(url: string) {
         const ws = new WebSocket(url);
+        tokeiLog("connecting to Skap server...");
+        this.ws = ws;
+        this.packetListeners.set(LOGIN_RESULT_PACKET, (data: any) => {
+            this.loginListeners.forEach((listener) => {
+                listener(this.username);
+            })
+        });
+        this.url = url;
+        this.setupWS(ws);
+    }
+
+    private setupWS(ws: WebSocket) {
         const send = (e: string, data: any) => {
             data.e = e;
             const packed = encode(data);
@@ -58,17 +71,14 @@ export class TokeiSocket {
         });
         ws.on('close', (code: number, reason: Buffer) => {
             tokeiLog("lost connection to Skap, status: " + code);
-            tokeiLog("buffer: " + buffer.toString());
             this.closeListeners.forEach((listener) => {
                 listener();
             })
+            // Retry the connection
+            tokeiLog("retrying connection to Skap server...");
+            this.ws = new WebSocket(this.url);
+            this.setupWS(this.ws);
         })
-        this.packetListeners.set(LOGIN_RESULT_PACKET, (data: any) => {
-            this.loginListeners.forEach((listener) => {
-                listener(this.username);
-            })
-        });
-        this.ws = ws;
     }
 
     public getBotUsername(): string {
@@ -77,6 +87,10 @@ export class TokeiSocket {
 
     public getBotPassword(): string {
         return this.password;
+    }
+
+    public getWebSocket(): WebSocket {
+        return this.ws;
     }
 
     public isOpen(): boolean {
@@ -100,7 +114,8 @@ export class TokeiSocket {
     }
 
     public send(e: string, data: any) {
-        this.sendFunction(e, data);
+        if (this.ws.readyState == this.ws.OPEN)
+            this.sendFunction(e, data);
     }
 
     public sendRequestGamesList() {
@@ -119,4 +134,8 @@ export class TokeiSocket {
             })
         }
     }
+}
+
+function connectToWebsocket() {
+    
 }

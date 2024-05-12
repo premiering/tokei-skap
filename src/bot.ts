@@ -4,18 +4,22 @@ import { updateHighest } from "./db";
 import { GAMES_PACKET, TokeiSocket, UPDATE_STATES_PACKET } from "./socket";
 import { tokeiLog } from "./util";
 
-interface TokeiBotData {
+interface TokeiBotState {
     lastPlayerCount: number,
-    connectedToOverworld: boolean
+    connectedToOverworld: boolean,
+    achievedCache: Map<string, Map<string, number>>
+}
+
+function defaultBotState(): TokeiBotState {
+    return {
+        lastPlayerCount: 0,
+        connectedToOverworld: false,
+        achievedCache: new Map<string, Map<string, number>>()
+    };
 }
 
 let tokeiSocket: TokeiSocket;
-let botData: TokeiBotData = {
-    lastPlayerCount: 0,
-    connectedToOverworld: false
-};
-
-const achievedCache = new Map<string, Map<string, number>>();
+let botData: TokeiBotState = defaultBotState();
 
 export async function initTokeiBot() {
     if (tokeiSocket && tokeiSocket.isOpen()) {
@@ -31,6 +35,10 @@ export async function initTokeiBot() {
         playerCountChecker = setInterval(() => {
             socket.sendRequestGamesList();
         }, config.playerCountIntervalMs)
+    });
+    socket.onClose(() => {
+        // Reset the state of the bot since we've been reset.
+        botData = defaultBotState();
     });
     socket.onPacket(GAMES_PACKET, updatePlayerCount);
     socket.onPacket(UPDATE_STATES_PACKET, updateAreaAchievements);
@@ -75,10 +83,10 @@ function updateAreaAchievements(data: any) {
             const trackedName = getTrackedNameFromArea(currentArea);
             if (trackedName == undefined)
                 return;
-            if (!achievedCache.has(trackedName)) {
-                achievedCache.set(trackedName, new Map());
+            if (!botData.achievedCache.has(trackedName)) {
+                botData.achievedCache.set(trackedName, new Map());
             }
-            const areaAchievedMap = achievedCache.get(trackedName);
+            const areaAchievedMap = botData.achievedCache.get(trackedName);
 
             if (areaAchievedMap?.has(name)) {
                 const previousScore = areaAchievedMap.get(name) as number;
