@@ -12,6 +12,8 @@ import { Database, open } from 'sqlite'
 import { exit } from "process";
 import { db, initSqlite, getAreaLeaderboards, } from "./db";
 import { isAreaTracked, trackedAreas } from "./areas";
+const http = require('http');
+const https = require('https');
 const cors = require('cors')
 const app: Express = express();
 
@@ -21,15 +23,15 @@ async function run() {
     tokeiLog(`    ${key}: ${(config as any)[key]}`);
   });
 
-  await initSqlite();  
+  await initSqlite();
   await initTokeiBot();
 
   app.use(cors());
   app.use(express.static('public'));
   app.set('view engine', 'pug');
-  
+
   app.get("/", async (req: Request, res: Response) => {
-    res.render('index', { 
+    res.render('index', {
       usernameText: "Its current username on Skap is " + getBotUsername(),
       playerCountText: "There's currently " + getLastPlayerCount() + " players on Skap"
     })
@@ -46,7 +48,7 @@ async function run() {
       username: getBotUsername()
     });
   })
-  
+
   app.get("/api/leaderboard/", async (req: Request, res: Response) => {
     const area = req.query.area;
     if (!area)
@@ -58,9 +60,14 @@ async function run() {
     res.send(leaderboard);
   });
 
-  app.listen(config.port, () => {
-    tokeiLog(`routes running - http://localhost:${config.port}`);
+  http.createServer(app).listen(config.port, () => {
+    tokeiLog(`HTTP routes running - http://localhost:${config.port}`);
   });
+  if (config.ssl) {
+    https.createServer({ key: config.privateKey, cert: config.certificate }).listen(config.sslPort, () => {
+        tokeiLog(`HTTPS (with SSL) routes running - https://localhost:${config.sslPort}`);
+    });
+  }
 }
 
 function invalidRequest(res: Response, message: string) {

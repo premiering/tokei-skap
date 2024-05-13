@@ -3,7 +3,9 @@ export const trackedAreas: string[] = [
     "Space Advanced",
     "Infernus",
     "Inferno",
-    "Nightmare"
+    "Nightmare",
+    "Glacier Advanced",
+    "April fools"
 ];
 
 export function calculateAreaScore(area: string): number | undefined {
