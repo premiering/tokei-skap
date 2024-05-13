@@ -1,6 +1,6 @@
 import express, { Express, Request, Response } from "express";
 import { tokeiLog } from "./util";
-import { config } from "./config";
+import { config, loadConfig } from "./config";
 import { getBotUsername, getLastPlayerCount, initTokeiBot } from "./bot";
 import { initSqlite, getAreaLeaderboards, } from "./db";
 import { isAreaTracked, trackedAreas } from "./areas";
@@ -16,6 +16,7 @@ async function run() {
     tokeiLog(`    ${key}: ${(config as any)[key]}`);
   });
 
+  loadConfig();
   await initSqlite();
   await initTokeiBot();
 
