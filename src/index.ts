@@ -14,6 +14,7 @@ import { db, initSqlite, getAreaLeaderboards, } from "./db";
 import { isAreaTracked, trackedAreas } from "./areas";
 const http = require('http');
 const https = require('https');
+const fs = require('fs');
 const cors = require('cors')
 const app: Express = express();
 
@@ -64,8 +65,8 @@ async function run() {
     tokeiLog(`HTTP routes running - http://localhost:${config.port}`);
   });
   if (config.ssl) {
-    https.createServer({ key: config.privateKey, cert: config.certificate }).listen(config.sslPort, () => {
-        tokeiLog(`HTTPS (with SSL) routes running - https://localhost:${config.sslPort}`);
+    https.createServer({ key: fs.readFileSync(config.privateKey), cert: fs.readFileSync(config.certificate) }).listen(config.sslPort, () => {
+      tokeiLog(`HTTPS (with SSL) routes running - https://localhost:${config.sslPort}`);
     });
   }
 }
