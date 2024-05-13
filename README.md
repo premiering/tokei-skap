@@ -66,7 +66,7 @@ That simple! Upon start, tokei-skap will setup the database (using sqlite3) and 
 ## Configuring tokei-skap
 tokei-skap is limited in configuring, but you change simple things like the power, debug mode, etc.
 ```dosini
-# .env
+# config.env
 PORT=3000
 DEBUGMODE=TRUE
 SKAPURL=ws://skap.io
