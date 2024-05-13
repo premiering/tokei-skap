@@ -1,15 +1,7 @@
-import express, { Express, Request, Response } from "express";
-import dotenv from "dotenv";
 import { randomHexString, tokeiDebug, tokeiLog } from "./util";
 import WebSocket = require("ws");
-import { decode, encode } from "@msgpack/msgpack";
-import { TokeiConfig } from "./config";
-import { GAMES_PACKET, TokeiSocket, UPDATE_STATES_PACKET } from "./socket";
-import { setInterval } from "timers";
-import { getLastPlayerCount, initTokeiBot } from "./bot";
 import sqlite3 from 'sqlite3'
 import { Database, open } from 'sqlite'
-import { exit } from "process";
 import { getTrackedNameFromArea, trackedAreas } from "./areas";
 
 sqlite3.verbose();

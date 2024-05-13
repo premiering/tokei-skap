@@ -1,14 +1,22 @@
-import dotenv from "dotenv";
+function parseBool(s: string | undefined, fallback: boolean): boolean {
+    if (s == "" || s == null || s == undefined)
+        return fallback;
+    return s.toLowerCase() === "true";
+}
 
-dotenv.config();
+function parseNumber(s: string | undefined, fallback: number): number {
+    if (s == "" || s == null || s == undefined)
+        return fallback;
+    return Number(s);
+}
 
 export const config: TokeiConfig = {
     port: process.env.PORT || 80,
     sslPort: process.env.SSLPORT || 443,
     skapUrl: process.env.skapUrl || "wss://skap.io",
-    debugMode: process.env.debugMode ? Boolean(process.env.debugMode) : false,
-    playerCountIntervalMs: process.env.playerCountIntervalMs ? Number(process.env.playerCountIntervalMs) : 10000,
-    ssl: process.env.ssl ? Boolean(process.env.ssl) : false,
+    debugMode: parseBool(process.env.debugMode, false),
+    playerCountIntervalMs: parseNumber(process.env.playerCountIntervalMs, 10000),
+    ssl: parseBool(process.env.ssl, false),
     privateKey: process.env.privateKey || "",
     certificate: process.env.certificate || ""
 }

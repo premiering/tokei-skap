@@ -1,4 +1,5 @@
 .env
+config.env
 stats.db
 /dist/
 /node_modules/

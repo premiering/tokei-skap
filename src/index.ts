@@ -1,16 +1,8 @@
 import express, { Express, Request, Response } from "express";
-import dotenv from "dotenv";
-import { randomHexString, tokeiLog } from "./util";
-import WebSocket = require("ws");
-import { decode, encode } from "@msgpack/msgpack";
-import { TokeiConfig, config } from "./config";
-import { GAMES_PACKET, TokeiSocket, UPDATE_STATES_PACKET } from "./socket";
-import { setInterval } from "timers";
+import { tokeiLog } from "./util";
+import { config } from "./config";
 import { getBotUsername, getLastPlayerCount, initTokeiBot } from "./bot";
-import sqlite3 from 'sqlite3'
-import { Database, open } from 'sqlite'
-import { exit } from "process";
-import { db, initSqlite, getAreaLeaderboards, } from "./db";
+import { initSqlite, getAreaLeaderboards, } from "./db";
 import { isAreaTracked, trackedAreas } from "./areas";
 const http = require('http');
 const https = require('https');

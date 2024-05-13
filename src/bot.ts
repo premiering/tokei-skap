@@ -58,7 +58,7 @@ export function getLastPlayerCount(): number {
 function updatePlayerCount(data: any) {
     // Connect to overworld if not yet connected
     if (!botData.connectedToOverworld || 
-        (new Date().getSeconds() - botData.lastUpdateState.getSeconds()) > config.playerCountIntervalMs / 1000
+        (new Date().getTime() - botData.lastUpdateState.getTime()) > config.playerCountIntervalMs
     ) {
         const overworld = data.g[0];
         tokeiSocket.sendJoinGame(overworld.id);
