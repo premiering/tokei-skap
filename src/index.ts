@@ -65,7 +65,7 @@ async function run() {
     tokeiLog(`HTTP routes running - http://localhost:${config.port}`);
   });
   if (config.ssl) {
-    https.createServer({ key: fs.readFileSync(config.privateKey), cert: fs.readFileSync(config.certificate) }).listen(config.sslPort, () => {
+    https.createServer({ key: fs.readFileSync(config.privateKey), cert: fs.readFileSync(config.certificate) }, app).listen(config.sslPort, () => {
       tokeiLog(`HTTPS (with SSL) routes running - https://localhost:${config.sslPort}`);
     });
   }
