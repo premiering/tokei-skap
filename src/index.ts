@@ -12,11 +12,11 @@ const app: Express = express();
 
 async function run() {
   tokeiLog("loading with the following settings:")
+  loadConfig();
   Object.keys(config).forEach((key: string) => {
     tokeiLog(`    ${key}: ${(config as any)[key]}`);
   });
 
-  loadConfig();
   await initSqlite();
   await initTokeiBot();
 
