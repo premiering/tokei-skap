@@ -16,12 +16,12 @@ export function loadConfig() {
     config = {
         port: process.env.PORT || 80,
         sslPort: process.env.SSLPORT || 443,
-        skapUrl: process.env.skapUrl || "wss://skap.io",
-        debugMode: parseBool(process.env.debugMode, false),
-        playerCountIntervalMs: parseNumber(process.env.playerCountIntervalMs, 10000),
-        ssl: parseBool(process.env.ssl, false),
-        privateKey: process.env.privateKey || "",
-        certificate: process.env.certificate || ""
+        skapUrl: process.env.SKAPURL || "wss://skap.io",
+        debugMode: parseBool(process.env.DEBUGMODE, false),
+        playerCountIntervalMs: parseNumber(process.env.PLAYERCOUNTINTERVALMS, 10000),
+        ssl: parseBool(process.env.SSL, false),
+        privateKey: process.env.PRIVATEKEY || "",
+        certificate: process.env.CERTIFICATE || ""
     };
 }
 
