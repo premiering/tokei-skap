@@ -1,21 +1,29 @@
-import { calculateAreaScore, getTrackedNameFromArea, isAreaTracked } from "./areas";
+import { calculateAreaScore, getLevelFromArea, isAreaTracked, timelyTrackedAreas } from "./areas";
 import { config } from "./config";
-import { updateHighest } from "./db";
+import { updateAreaCompletion, updateTimelyCompletion } from "./db";
 import { GAMES_PACKET, TokeiSocket, UPDATE_STATES_PACKET } from "./socket";
 import { tokeiLog } from "./util";
 
 interface TokeiBotState {
     lastPlayerCount: number,
     connectedToOverworld: boolean,
-    achievedCache: Map<string, Map<string, number>>,
+    completionCache: Map<string, Map<string, number>>,
+    timelyRuns: Map<string, TimelyRunState>,
     lastUpdateState: Date
+}
+
+interface TimelyRunState {
+    startTime: Date,
+    levelName: string,
+    highestAreaScore: number
 }
 
 function defaultBotState(): TokeiBotState {
     return {
         lastPlayerCount: 0,
         connectedToOverworld: false,
-        achievedCache: new Map<string, Map<string, number>>(),
+        completionCache: new Map<string, Map<string, number>>(),
+        timelyRuns: new Map<string, TimelyRunState>(),
         lastUpdateState: new Date()
     };
 }
@@ -43,7 +51,9 @@ export async function initTokeiBot() {
         botData = defaultBotState();
     });
     socket.onPacket(GAMES_PACKET, updatePlayerCount);
-    socket.onPacket(UPDATE_STATES_PACKET, updateAreaAchievements);
+    socket.onPacket(UPDATE_STATES_PACKET, updateLastUpdateTime);
+    socket.onPacket(UPDATE_STATES_PACKET, updateCompletionsLeaderboards);
+    socket.onPacket(UPDATE_STATES_PACKET, updateTimelyLeaderboards);
     tokeiSocket = socket;
 }
 
@@ -72,8 +82,11 @@ function updatePlayerCount(data: any) {
     botData.lastPlayerCount = totalPlayerCount;
 }
 
-function updateAreaAchievements(data: any) {
+function updateLastUpdateTime(data: any) {
     botData.lastUpdateState = new Date();
+}
+
+function updateCompletionsLeaderboards(data: any) {
     data.m.playerList.forEach((p: any) => {
         const name = p[0] as string;
         const currentArea = p[1] as string;
@@ -85,13 +98,13 @@ function updateAreaAchievements(data: any) {
                 return;
 
             // Insert a map for this area if not yet created
-            const trackedName = getTrackedNameFromArea(currentArea);
+            const trackedName = getLevelFromArea(currentArea);
             if (trackedName == undefined)
                 return;
-            if (!botData.achievedCache.has(trackedName)) {
-                botData.achievedCache.set(trackedName, new Map());
+            if (!botData.completionCache.has(trackedName)) {
+                botData.completionCache.set(trackedName, new Map());
             }
-            const areaAchievedMap = botData.achievedCache.get(trackedName);
+            const areaAchievedMap = botData.completionCache.get(trackedName);
 
             if (areaAchievedMap?.has(name)) {
                 const previousScore = areaAchievedMap.get(name) as number;
@@ -99,7 +112,49 @@ function updateAreaAchievements(data: any) {
                     return;
             }
             areaAchievedMap?.set(name, areaScore);
-            updateHighest(name, currentArea, areaScore);
+            updateAreaCompletion(name, currentArea, areaScore);
+        }
+    });
+}
+
+function updateTimelyLeaderboards(data: any) {
+    data.m.playerList.forEach((p: any) => {
+        const name = p[0] as string;
+        const currentArea = p[1] as string;
+
+        if (isAreaTracked(currentArea)) {
+            const currentTimelyRun = botData.timelyRuns.get(name);
+            const areaScore = calculateAreaScore(currentArea);
+            if (areaScore == undefined)
+                return;
+            const levelName = getLevelFromArea(currentArea);
+            if (levelName == undefined)
+                return;
+            if (currentTimelyRun == undefined || currentTimelyRun?.levelName != levelName) {
+                if (areaScore == 1) {
+                    // This is the start of the run then
+                    botData.timelyRuns.set(name, {
+                        startTime: new Date(),
+                        levelName: levelName,
+                        highestAreaScore: areaScore
+                    });
+                }
+                return;
+            }
+
+            if (areaScore > currentTimelyRun.highestAreaScore) {
+                for (const tracked of timelyTrackedAreas) {
+                    if (tracked.levelName != levelName)
+                        continue;
+                    const trackedAreaScore = calculateAreaScore(tracked.areaToReach) as number;
+                    if (currentTimelyRun.highestAreaScore >= trackedAreaScore)
+                        continue;
+
+                    if (areaScore == trackedAreaScore)
+                        updateTimelyCompletion(name, tracked, new Date().getTime() - currentTimelyRun.startTime.getTime());
+                }
+                currentTimelyRun.highestAreaScore = areaScore;
+            }
         }
     });
 }

@@ -18,7 +18,7 @@ export class TokeiSocket {
     private ws: WebSocket;
     private url: string;
     private sendFunction: (e: string, data: any) => void = (e: string, data: any) => {};
-    private packetListeners: Map<string, PacketListener> = new Map();
+    private packetListeners: Map<string, PacketListener[]> = new Map();
     private openListeners: CallbackListener[] = [];
     private closeListeners: CallbackListener[] = [];
     private loginListeners: LoginListener[] = [];
@@ -29,11 +29,13 @@ export class TokeiSocket {
         const ws = new WebSocket(url);
         tokeiLog("connecting to Skap server...");
         this.ws = ws;
-        this.packetListeners.set(LOGIN_RESULT_PACKET, (data: any) => {
+        const loginListeners: PacketListener[] = []
+        loginListeners.push((data: any) => {
             this.loginListeners.forEach((listener) => {
                 listener(this.username);
             })
         });
+        this.packetListeners.set(LOGIN_RESULT_PACKET, loginListeners);
         this.url = url;
         this.setupWS(ws);
     }
@@ -66,7 +68,10 @@ export class TokeiSocket {
         ws.on('message', (data: any) => {
             const packed = decode(new Uint8Array(data as ArrayBuffer)) as any;
             if (this.packetListeners.has(packed.e)) {
-                (this.packetListeners.get(packed.e) as PacketListener)(packed);
+                const listeners = this.packetListeners.get(packed.e) as PacketListener[];
+                listeners.forEach((listener) => {
+                    listener(packed);
+                })
             }
         });
         ws.on('close', (code: number, reason: Buffer) => {
@@ -98,7 +103,13 @@ export class TokeiSocket {
     }
 
     public onPacket(e: string, listener: PacketListener) {
-        this.packetListeners.set(e, listener);
+        if (this.packetListeners.has(e)) {
+            (this.packetListeners.get(e) as PacketListener[]).push(listener);
+        } else {
+            const listeners: PacketListener[] = [];
+            listeners.push(listener);
+            this.packetListeners.set(e, listeners);
+        }
     }
 
     public onLogin(listener: LoginListener) {
@@ -134,8 +145,4 @@ export class TokeiSocket {
             })
         }
     }
-}
-
-function connectToWebsocket() {
-    
 }
