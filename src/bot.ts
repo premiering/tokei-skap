@@ -109,43 +109,46 @@ function updateTimelyLeaderboards(data: any) {
         const name = p[0] as string;
         const currentArea = p[1] as string;
 
-        if (isAreaTracked(currentArea)) {
-            const currentTimelyRun = botData.timelyRuns.get(name);
-            const areaScore = calculateAreaScore(currentArea);
-            const levelName = getLevelFromArea(currentArea);
-                        
-            if (areaScore == undefined || levelName == undefined) {
-                if (currentTimelyRun != undefined)
-                    botData.timelyRuns.delete(name);
-                return;
-            }
-            if (currentTimelyRun == undefined || currentTimelyRun?.levelName != levelName) {
-                if (areaScore == 1) {
-                    // This is the start of the run then
-                    botData.timelyRuns.set(name, {
-                        startTime: new Date(),
-                        levelName: levelName,
-                        highestAreaScore: areaScore,
-                        runTicks: 0
-                    });
-                }
-                return;
-            }
-
-            if (areaScore > currentTimelyRun.highestAreaScore) {
-                for (const tracked of timelyTrackedAreas) {
-                    if (tracked.levelName != levelName)
-                        continue;
-                    const trackedAreaScore = calculateAreaScore(tracked.areaToReach) as number;
-                    if (currentTimelyRun.highestAreaScore >= trackedAreaScore)
-                        continue;
-
-                    if (areaScore == trackedAreaScore)
-                        updateTimelyCompletion(name, tracked, new Date().getTime() - currentTimelyRun.startTime.getTime(), currentTimelyRun.runTicks);
-                }
-                currentTimelyRun.highestAreaScore = areaScore;
-            }
-            currentTimelyRun.runTicks++;
+        const areaTracked = isAreaTracked(currentArea);
+        if (!areaTracked) {
+            botData.timelyRuns.delete(name);
+            return;
         }
+        const currentTimelyRun = botData.timelyRuns.get(name);
+        const areaScore = calculateAreaScore(currentArea);
+        const levelName = getLevelFromArea(currentArea);
+
+        if (areaScore == undefined || levelName == undefined) {
+            if (currentTimelyRun != undefined)
+                botData.timelyRuns.delete(name);
+            return;
+        }
+        if (currentTimelyRun == undefined || currentTimelyRun?.levelName != levelName) {
+            if (areaScore == 1) {
+                // This is the start of the run then
+                botData.timelyRuns.set(name, {
+                    startTime: new Date(),
+                    levelName: levelName,
+                    highestAreaScore: areaScore,
+                    runTicks: 0
+                });
+            }
+            return;
+        }
+
+        if (areaScore > currentTimelyRun.highestAreaScore) {
+            for (const tracked of timelyTrackedAreas) {
+                if (tracked.levelName != levelName)
+                    continue;
+                const trackedAreaScore = calculateAreaScore(tracked.areaToReach) as number;
+                if (currentTimelyRun.highestAreaScore >= trackedAreaScore)
+                    continue;
+
+                if (areaScore == trackedAreaScore)
+                    updateTimelyCompletion(name, tracked, new Date().getTime() - currentTimelyRun.startTime.getTime(), currentTimelyRun.runTicks);
+            }
+            currentTimelyRun.highestAreaScore = areaScore;
+        }
+        currentTimelyRun.runTicks++;
     });
 }
