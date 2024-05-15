@@ -1,10 +1,7 @@
-import { randomHexString, tokeiDebug, tokeiLog } from "./util";
-import WebSocket = require("ws");
+import { tokeiDebug, tokeiLog } from "./util";
 import sqlite3 from 'sqlite3'
 import { Database, open } from 'sqlite'
 import { TrackedTimelyArea, getLevelFromArea, isAreaTimelyTracked, timelyTrackedAreas, trackedLevels } from "./areas";
-import { run } from "node:test";
-
 sqlite3.verbose();
 
 export interface CompletionLeaderboardPlacement {
@@ -30,7 +27,7 @@ export interface TimelyLeaderboard {
 }
 
 const LEVEL_COMPLETION_TABLE_SCHEMA = "( PlayerName string, TimeAchieved DATETIME, AreaName string, AreaScore double )";
-const TIMELY_COMPLETION_TABLE_SCHEMA = "( PlayerName string, TimeAchieved DATETIME, RunTime integer )";
+const TIMELY_COMPLETION_TABLE_SCHEMA = "( PlayerName string, TimeAchieved DATETIME, RunTime integer, RunTicks integer )";
 export let db: Database<sqlite3.Database, sqlite3.Statement>;
 
 export async function initSqlite(): Promise<void> {
@@ -73,23 +70,25 @@ export async function updateAreaCompletion(playerName: string, areaName: string,
     }
 }
 
-export async function updateTimelyCompletion(playerName: string, trackedArea: TrackedTimelyArea, runTimeMs: number) {
+export async function updateTimelyCompletion(playerName: string, trackedArea: TrackedTimelyArea, runTimeMs: number, runTicks: number) {
     const tableName = getTimelyTableFromArea(trackedArea.areaToReach);
     const result = await db.get(`SELECT * FROM ${tableName} WHERE PlayerName = ?`, playerName);
     if (!result) {
         await db.run(
-            `INSERT INTO ${tableName} (PlayerName, TimeAchieved, RunTime) VALUES (?, CURRENT_TIMESTAMP, ?)`, 
+            `INSERT INTO ${tableName} (PlayerName, TimeAchieved, RunTime, RunTicks) VALUES (?, CURRENT_TIMESTAMP, ?, ?)`, 
             playerName,  
-            runTimeMs
+            runTimeMs,
+            runTicks
         );
         tokeiDebug(`inserted timely record: (${playerName}, ${trackedArea.areaToReach}, ${runTimeMs})`);
     } else if (runTimeMs < result.RunTime) {
         await db.run(
-            `UPDATE ${tableName} SET RunTime = ?, TimeAchieved = CURRENT_TIMESTAMP WHERE PlayerName = ?`, 
+            `UPDATE ${tableName} SET RunTime = ?, RunTicks = ?, TimeAchieved = CURRENT_TIMESTAMP WHERE PlayerName = ?`, 
             runTimeMs,
+            runTicks,
             playerName
         );
-        tokeiDebug(`updated record: (${playerName}, ${trackedArea.areaToReach}, ${runTimeMs})`);
+        tokeiDebug(`updated record: (${playerName}, ${trackedArea.areaToReach}, ${runTicks}, ${runTimeMs})`);
     }
 }
 
@@ -120,7 +119,7 @@ export async function getTimelyAreaLeaderboards(limit: number, area: string): Pr
     if (!isAreaTimelyTracked(area))
         return undefined;
     const tableName = getTimelyTableFromArea(area);
-    const players = await db.all(`SELECT * FROM ${tableName} ORDER BY RunTime DESC, TimeAchieved ASC LIMIT ${limit}`)
+    const players = await db.all(`SELECT * FROM ${tableName} ORDER BY RunTime ASC, TimeAchieved ASC LIMIT ${limit}`);
 
     let placements: TimelyLeaderboardPlacement[] = [];
 

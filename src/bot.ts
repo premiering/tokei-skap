@@ -14,6 +14,7 @@ interface TokeiBotState {
 
 interface TimelyRunState {
     startTime: Date,
+    runTicks: number,
     levelName: string,
     highestAreaScore: number
 }
@@ -136,7 +137,8 @@ function updateTimelyLeaderboards(data: any) {
                     botData.timelyRuns.set(name, {
                         startTime: new Date(),
                         levelName: levelName,
-                        highestAreaScore: areaScore
+                        highestAreaScore: areaScore,
+                        runTicks: 0
                     });
                 }
                 return;
@@ -151,10 +153,11 @@ function updateTimelyLeaderboards(data: any) {
                         continue;
 
                     if (areaScore == trackedAreaScore)
-                        updateTimelyCompletion(name, tracked, new Date().getTime() - currentTimelyRun.startTime.getTime());
+                        updateTimelyCompletion(name, tracked, new Date().getTime() - currentTimelyRun.startTime.getTime(), currentTimelyRun.runTicks);
                 }
                 currentTimelyRun.highestAreaScore = areaScore;
             }
+            currentTimelyRun.runTicks++;
         }
     });
 }
