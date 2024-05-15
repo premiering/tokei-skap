@@ -6,10 +6,8 @@ import { tokeiLog } from "./util";
 
 interface TokeiBotState {
     lastPlayerCount: number,
-    connectedToOverworld: boolean,
     completionCache: Map<string, Map<string, number>>,
-    timelyRuns: Map<string, TimelyRunState>,
-    lastUpdateState: Date
+    timelyRuns: Map<string, TimelyRunState>
 }
 
 interface TimelyRunState {
@@ -22,10 +20,8 @@ interface TimelyRunState {
 function defaultBotState(): TokeiBotState {
     return {
         lastPlayerCount: 0,
-        connectedToOverworld: false,
         completionCache: new Map<string, Map<string, number>>(),
-        timelyRuns: new Map<string, TimelyRunState>(),
-        lastUpdateState: new Date()
+        timelyRuns: new Map<string, TimelyRunState>()
     };
 }
 
@@ -52,7 +48,6 @@ export async function initTokeiBot() {
         botData = defaultBotState();
     });
     socket.onPacket(GAMES_PACKET, updatePlayerCount);
-    socket.onPacket(UPDATE_STATES_PACKET, updateLastUpdateTime);
     socket.onPacket(UPDATE_STATES_PACKET, updateCompletionsLeaderboards);
     socket.onPacket(UPDATE_STATES_PACKET, updateTimelyLeaderboards);
     tokeiSocket = socket;
@@ -67,14 +62,8 @@ export function getLastPlayerCount(): number {
 }
 
 function updatePlayerCount(data: any) {
-    // Connect to overworld if not yet connected
-    if (!botData.connectedToOverworld || 
-        (new Date().getTime() - botData.lastUpdateState.getTime()) > config.playerCountIntervalMs
-    ) {
-        const overworld = data.g[0];
-        tokeiSocket.sendJoinGame(overworld.id);
-        botData.connectedToOverworld = true;
-    }
+    const overworld = data.g[0];
+    tokeiSocket.sendJoinGame(overworld.id);
 
     let totalPlayerCount: number = 0;
     data.g.forEach((g: any) => {
@@ -83,9 +72,6 @@ function updatePlayerCount(data: any) {
     botData.lastPlayerCount = totalPlayerCount;
 }
 
-function updateLastUpdateTime(data: any) {
-    botData.lastUpdateState = new Date();
-}
 
 function updateCompletionsLeaderboards(data: any) {
     data.m.playerList.forEach((p: any) => {
