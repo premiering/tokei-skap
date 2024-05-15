@@ -112,11 +112,13 @@ function updateTimelyLeaderboards(data: any) {
         if (isAreaTracked(currentArea)) {
             const currentTimelyRun = botData.timelyRuns.get(name);
             const areaScore = calculateAreaScore(currentArea);
-            if (areaScore == undefined)
-                return;
             const levelName = getLevelFromArea(currentArea);
-            if (levelName == undefined)
+                        
+            if (areaScore == undefined || levelName == undefined) {
+                if (currentTimelyRun != undefined)
+                    botData.timelyRuns.delete(name);
                 return;
+            }
             if (currentTimelyRun == undefined || currentTimelyRun?.levelName != levelName) {
                 if (areaScore == 1) {
                     // This is the start of the run then
