@@ -1,7 +1,6 @@
 import { decode, encode } from "@msgpack/msgpack";
 import { WebSocket } from "ws";
 import { randomHexString, tokeiLog } from "./util";
-import { buffer } from "stream/consumers";
 
 export type PacketListener = (packet: any) => void;
 export type CallbackListener = () => void;
@@ -13,6 +12,7 @@ export const LOGIN_PACKET = "login";
 export const SESSION_PACKET = "session";
 export const JOIN_PACKET = "join";
 export const UPDATE_STATES_PACKET = "updateStates";
+export const CREATE_GAME_PACKET = "createGame";
 
 export class TokeiSocket {
     private ws: WebSocket;

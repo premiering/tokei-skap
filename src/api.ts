@@ -1,9 +1,9 @@
 import express, { Express, Request, Response } from "express";
-import { getBotUsername, getLastPlayerCount } from "./bot";
 import { isAreaTimelyTracked, isAreaTracked, timelyTrackedAreas, trackedLevels } from "./areas";
 import { getCompletionLevelLeaderboards, getTimelyAreaLeaderboards } from "./db";
 import { tokeiLog } from "./util";
 import { config } from "./config";
+import { overworldBot } from ".";
 
 const http = require('http');
 const https = require('https');
@@ -13,20 +13,20 @@ const app: Express = express();
 
 async function routeHomePage(req: Request, res: Response) {
     res.render('index', {
-        usernameText: "Its current username on Skap is " + getBotUsername(),
-        playerCountText: "There's currently " + getLastPlayerCount() + " players on Skap"
+        usernameText: "Its current username on Skap is " + overworldBot.getBotUsername(),
+        playerCountText: "There's currently " + overworldBot.getLastPlayerCount() + " players on Skap"
     })
 }
 
 async function routePlayerCount(req: Request, res: Response) {
     res.send({
-        playerCount: getLastPlayerCount()
+        playerCount: overworldBot.getLastPlayerCount()
     });
 }
 
 async function routeUsername(req: Request, res: Response) {
     res.send({
-        username: getBotUsername()
+        username: overworldBot.getBotUsername()
     });
 }
 

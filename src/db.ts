@@ -28,7 +28,14 @@ export interface TimelyLeaderboard {
 
 const LEVEL_COMPLETION_TABLE_SCHEMA = "( PlayerName string, TimeAchieved DATETIME, AreaName string, AreaScore double )";
 const TIMELY_COMPLETION_TABLE_SCHEMA = "( PlayerName string, TimeAchieved DATETIME, RunTime integer, RunTicks integer )";
+const SECONDARY_OVERWORLD_ROOMS_SCHEMA = "( RoomId string, TimeCreated DATETIME )";
+const SECONDARY_OVERWORLD_ROOMS_TABLE_NAME = "SecondaryOverworldRooms";
+let LAST_SECONDARY_ROOM_ID: string = "";
 export let db: Database<sqlite3.Database, sqlite3.Statement>;
+
+export function getLastSecondaryRoomId(): string {
+    return LAST_SECONDARY_ROOM_ID;
+}
 
 export async function initSqlite(): Promise<void> {
     return open({
@@ -92,6 +99,14 @@ export async function updateTimelyCompletion(playerName: string, trackedArea: Tr
     }
 }
 
+export async function addSecondaryOverworldRoom(roomId: string) {
+    await db.run(
+        `INSERT INTO ${SECONDARY_OVERWORLD_ROOMS_TABLE_NAME} (RoomId, TimeCreated) VALUE (?, CURRENT_TIMESTAMP)`,
+        roomId
+    );
+    tokeiDebug("added secondary overworld room: " + roomId);
+}
+
 export async function getCompletionLevelLeaderboards(limit: number, area: string): Promise<CompletionLeaderboard | undefined> {
     const trackedName = getLevelFromArea(area);
     if (trackedName == undefined)
@@ -137,7 +152,7 @@ export async function getTimelyAreaLeaderboards(limit: number, area: string): Pr
     }
 }
 
-function onDatabaseLoad() {
+async function onDatabaseLoad() {
     tokeiLog("sqlite ./stats.db is loaded");
     trackedLevels.forEach((level) => {
         const tableName = getCompletionTableFromArea(level);
@@ -149,6 +164,13 @@ function onDatabaseLoad() {
         tokeiDebug("creating if doesnt exist table " + tableName);
         db.exec(`CREATE TABLE IF NOT EXISTS ${tableName} ${TIMELY_COMPLETION_TABLE_SCHEMA}`);
     })
+    db.exec(`CREATE TABLE IF NOT EXISTS ${SECONDARY_OVERWORLD_ROOMS_TABLE_NAME} ${SECONDARY_OVERWORLD_ROOMS_SCHEMA}`);
+
+    const result = await db.all(`SELECT * FROM ${SECONDARY_OVERWORLD_ROOMS_TABLE_NAME} ORDER BY TimeCreated DESC LIMIT 1`);
+    if (result.length > 0) {
+        const last = result[0];
+        LAST_SECONDARY_ROOM_ID = last.RoomId;
+    }
 }
 
 function getCompletionTableFromArea(trackedName: string): string {
