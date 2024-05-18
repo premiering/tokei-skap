@@ -11,7 +11,7 @@ Timely leaderboards are leaderboards that are sorted by the fastest to reach a c
 
 Your request should contain an `area` as a search param. Options are `Exodus 50 VICTORY`, `Exodus 100 VICTORY`, `Exodus 150 VICTORY`, `Space Advanced 20 VICTORY`, `Infernus 25`, `Inferno 25`, and `Nightmare 20`.
 
-You can also optionally add a limit to the results by adding a `limit` search param. It can at most be 200 and is by default 35.
+You can also optionally add a limit to the results by adding a `limit` search param. It can at most be 250 and is by default 35.
 
 Example: to fetch the leaderboards for `Exodus 50 VICTORY` with the limit 50, your URL would be `https://tokei.nightly.pw/api/leaderboard/timely?area=Exodus 50 VICTORY&limit=50`.
 #### Response format
@@ -38,7 +38,7 @@ Completion leaderboards are leaderboards that are ranked by the highest area ach
 
 Your request should contain an `area` as a search param. Options are `Exodus`, `Space Advanced`, `Infernus`, `Inferno`, `Nightmare`, `Glacier Advanced`, and `April Fools`
 
-You can also optionally add a limit to the results by adding a `limit` search param. It can at most be 200 and is by default 35.
+You can also optionally add a limit to the results by adding a `limit` search param. It can at most be 250 and is by default 35.
 
 Example: to fetch the leaderboards for `Exodus` with a limit of 50, your URL would be `https://tokei.nightly.pw/api/leaderboard/completion?area=Exodus&limit=50`.
 #### Response format
