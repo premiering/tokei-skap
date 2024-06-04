@@ -100,9 +100,11 @@ DEBUGMODE=TRUE
 SKAPURL=ws://skap.io
 # How often in milliseconds should we ask the server what the player count is?
 PLAYERCOUNTINTERVALMS=5000
+SECONDARYOVERWORLDBOT=true
 SSL=TRUE
 PRIVATEKEY="/etc/coolcertificate/privkey.pem"
 CERTIFICATE="/etc/coolcertificate/fullchain.pem"
+ALLOWINVALIDSKAPSSL=true
 ```
 
 ## License

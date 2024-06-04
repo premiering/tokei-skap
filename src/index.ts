@@ -14,9 +14,14 @@ async function run() {
     tokeiLog(`  ${key}: ${(config as any)[key]}`);
   });
 
+  if (config.allowInvalidSkapSSL) {
+    process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = '0';
+  }
+
   await initSqlite();
   overworldBot = initTokeiBot();
-  secondaryOverworldBot = initSecondaryTokeiBot();
+  if (config.secondaryOverworldBot)
+    secondaryOverworldBot = initSecondaryTokeiBot();
   initExpressApi();
 }
 

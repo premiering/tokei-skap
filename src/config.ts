@@ -19,9 +19,11 @@ export function loadConfig() {
         skapUrl: process.env.SKAPURL || "wss://skap.io",
         debugMode: parseBool(process.env.DEBUGMODE, false),
         playerCountIntervalMs: parseNumber(process.env.PLAYERCOUNTINTERVALMS, 10000),
+        secondaryOverworldBot: parseBool(process.env.SECONDARYOVERWORLDBOT, false),
         ssl: parseBool(process.env.SSL, false),
         privateKey: process.env.PRIVATEKEY || "",
-        certificate: process.env.CERTIFICATE || ""
+        certificate: process.env.CERTIFICATE || "",
+        allowInvalidSkapSSL: parseBool(process.env.ALLOWINVALIDSKAPSSL, true)
     };
 }
 
@@ -30,9 +32,11 @@ export interface TokeiConfig {
     sslPort: number | string,
     skapUrl: string,
     debugMode: boolean,
+    secondaryOverworldBot: boolean,
     // How often in milliseconds should we ask the server what the player count is?
     playerCountIntervalMs: number,
     ssl: boolean,
     privateKey: string,
-    certificate: string
+    certificate: string,
+    allowInvalidSkapSSL: boolean
 }
