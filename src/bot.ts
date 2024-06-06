@@ -183,7 +183,7 @@ export class TokeiSecondaryOverworldbot extends TokeiBot {
         this.socket.send(CREATE_GAME_PACKET, {
             s: settings
         });
-        tokeiLog("sent create overworld 2 packet")
+        tokeiLog("created Overworld 2")
     }
 }
 
