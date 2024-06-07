@@ -14,7 +14,7 @@ export const JOIN_PACKET = "join";
 export const UPDATE_STATES_PACKET = "updateStates";
 export const CREATE_GAME_PACKET = "createGame";
 
-export class TokeiSocket {
+export class BotSocket {
     private ws: WebSocket;
     private url: string;
     private sendFunction: (e: string, data: any) => void = (e: string, data: any) => {};

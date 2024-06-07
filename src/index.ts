@@ -1,11 +1,11 @@
 import { tokeiLog } from "./util";
 import { config, loadConfig } from "./config";
-import { TokeiBot, initSecondaryTokeiBot, initTokeiBot } from "./bot";
+import { Bot, initSecondaryOverworldBot, initBot } from "./bot";
 import { initSqlite } from "./db";
 import { initExpressApi } from "./api";
 
-export let overworldBot: TokeiBot;
-export let secondaryOverworldBot: TokeiBot;
+export let overworldBot: Bot;
+export let secondaryOverworldBot: Bot;
 
 async function run() {
   tokeiLog("loading with the following settings:")
@@ -19,9 +19,9 @@ async function run() {
   }
 
   await initSqlite();
-  overworldBot = initTokeiBot();
+  overworldBot = initBot();
   if (config.secondaryOverworldBot)
-    secondaryOverworldBot = initSecondaryTokeiBot();
+    secondaryOverworldBot = initSecondaryOverworldBot();
   initExpressApi();
 }
 

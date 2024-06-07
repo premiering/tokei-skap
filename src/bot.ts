@@ -1,10 +1,10 @@
 import { calculateAreaScore, getLevelFromArea, isAreaTracked, timelyTrackedAreas } from "./areas";
 import { config } from "./config";
 import { getLastSecondaryRoomId, updateAreaCompletion, updateTimelyCompletion } from "./db";
-import { CREATE_GAME_PACKET, GAMES_PACKET, LOGIN_PACKET, LOGIN_RESULT_PACKET, TokeiSocket, UPDATE_STATES_PACKET } from "./socket";
+import { CREATE_GAME_PACKET, GAMES_PACKET, LOGIN_PACKET, LOGIN_RESULT_PACKET, BotSocket, UPDATE_STATES_PACKET } from "./socket";
 import { tokeiLog } from "./util";
 
-interface TokeiBotState {
+interface BotState {
     lastPlayerCount: number,
     completionCache: Map<string, Map<string, number>>,
     timelyRuns: Map<string, TimelyRunState>
@@ -17,7 +17,7 @@ interface TimelyRunState {
     highestAreaScore: number
 }
 
-function defaultBotState(): TokeiBotState {
+function defaultBotState(): BotState {
     return {
         lastPlayerCount: 0,
         completionCache: new Map<string, Map<string, number>>(),
@@ -25,16 +25,16 @@ function defaultBotState(): TokeiBotState {
     };
 }
 
-export class TokeiBot {
-    protected socket: TokeiSocket;
-    protected botData: TokeiBotState = defaultBotState();
+export class Bot {
+    protected socket: BotSocket;
+    protected botData: BotState = defaultBotState();
 
-    constructor(socket: TokeiSocket) {
+    constructor(socket: BotSocket) {
         this.socket = socket;
         this.setupSocket(socket);
     }
 
-    public setupSocket(socket: TokeiSocket) {
+    public setupSocket(socket: BotSocket) {
         socket.onLogin(() => {
             tokeiLog("logged in as " + socket.getBotUsername());
             setTimeout(() => {
@@ -151,8 +151,8 @@ export class TokeiBot {
     }
 }
 
-export class TokeiOverworldBot extends TokeiBot {
-    public setupSocket(socket: TokeiSocket): void {
+export class OverworldBot extends Bot {
+    public setupSocket(socket: BotSocket): void {
         super.setupSocket(socket);
         this.socket.onPacket(GAMES_PACKET, (data: any) => { this.connectToOverworld(data) });
     }
@@ -163,8 +163,8 @@ export class TokeiOverworldBot extends TokeiBot {
     }
 }
 
-export class TokeiSecondaryOverworldbot extends TokeiBot {
-    public setupSocket(socket: TokeiSocket): void {
+export class SecondaryOverworldBot extends Bot {
+    public setupSocket(socket: BotSocket): void {
         super.setupSocket(socket);
         this.socket.onLogin((data: any) => { setTimeout(() => { this.createSecondaryOverworld(data) }, 1000) });
     }
@@ -187,14 +187,14 @@ export class TokeiSecondaryOverworldbot extends TokeiBot {
     }
 }
 
-export function initTokeiBot(): TokeiBot {
-    const socket = new TokeiSocket(config.skapUrl);
-    const bot = new TokeiOverworldBot(socket);
+export function initBot(): Bot {
+    const socket = new BotSocket(config.skapUrl);
+    const bot = new OverworldBot(socket);
     return bot;
 }
 
-export function initSecondaryTokeiBot(): TokeiBot {
-    const socket = new TokeiSocket(config.skapUrl);
-    const bot = new TokeiSecondaryOverworldbot(socket);
+export function initSecondaryOverworldBot(): Bot {
+    const socket = new BotSocket(config.skapUrl);
+    const bot = new SecondaryOverworldBot(socket);
     return bot;
 } 
