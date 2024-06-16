@@ -1,5 +1,5 @@
 # 🪁 tokei-skap
-The bot that's always watching... A statistics bot for skap.io, which sits in game and collects data about areas which have been reached. It provides a public API for fetching this data.
+A statistics bot for skap.io, which sits in game and collects data about areas which have been reached. It provides a public API for fetching this data.
 
 ## Using the public API
 The public tokei-skap API lives on https://tokei.nightly.pw.
