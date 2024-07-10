@@ -1,10 +1,5 @@
-<<<<<<< HEAD
 # tokei-skap
 Bot that joins the skap.io game and collects data, then provides an API on the data
-=======
-# 🪁 tokei-skap
-A statistics bot for skap.io, which sits in game and collects data about areas which have been reached. It provides a public API for fetching this data.
->>>>>>> 2a1aa40f2a97f23b24e84789658733e10d84329c
 
 ## Using the public API
 The public tokei-skap API lives on https://tokei.nightly.pw.
