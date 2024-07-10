@@ -1,19 +1,23 @@
-# 🪁 tokei-skap
-The bot that's always watching... A statistics bot for skap.io, which sits in game and collects data about areas which have been reached. It provides a public API for fetching this data.
+# tokei-skap
+Bot that joins the skap.io game and collects data, then provides an API on the data
 
 ## Using the public API
 The public tokei-skap API lives on https://tokei.nightly.pw.
 
 ### Fetching timely leaderboards
-Timely leaderboards are leaderboards that are sorted by the fastest to reach a certain area. The time starts when you enter the first area of a level, and ends when you reach the target area.
-#### Request format
+Timely leaderboards are sorted by the fastest to reach the area. Time is started when you entering the first area of a level, and ends when reaching the target area.
+#### Request URL
 `https://tokei.nightly.pw/api/leaderboard/timely`
 
-Your request should contain an `area` as a search param. Options are `Exodus 50 VICTORY`, `Exodus 100 VICTORY`, `Exodus 150 VICTORY`, `Space Advanced 20 VICTORY`, `Infernus 25`, `Inferno 25`, and `Nightmare 20`.
+#### Required search param: `area` 
 
-You can also optionally add a limit to the results by adding a `limit` search param. It can at most be 250 and is by default 35.
+Options are `Exodus 50 VICTORY`, `Exodus 100 VICTORY`, `Exodus 150 VICTORY`, `Space Advanced 20 VICTORY`, `Infernus 25`, `Inferno 25`, and `Nightmare 20`.
 
-Example: to fetch the leaderboards for `Exodus 50 VICTORY` with the limit 50, your URL would be `https://tokei.nightly.pw/api/leaderboard/timely?area=Exodus 50 VICTORY&limit=50`.
+#### Optional search param: `limit` 
+
+It can at most be 250 and is by default 35.
+
+i.e. to fetch the `Exodus 50 VICTORY` leaderboard with limit 50, URL would be `https://tokei.nightly.pw/api/leaderboard/timely?area=Exodus 50 VICTORY&limit=50`.
 #### Response format
 An example response:
 ```json
@@ -29,18 +33,22 @@ An example response:
 }
 ```
 
-Each placement object contains the player's name, the UTC date time reached (YYYY/mm/dd HH:mm:ss), and the area reached.
+Date reached is encoded in (YYYY/mm/dd HH:mm:ss).
 
 ### Fetching completion leaderboards
-Completion leaderboards are leaderboards that are ranked by the highest area achieved for a level. If this area achieved is the same (for example, Infernus 25), then it is ranked by who reached it at an earlier date/time.
-#### Request format
+Completion leaderboards are ranked by the highest area achieved for a level. If multiple playerse reach the max possible area, it's ranked by who reached it first.
+#### Request URL
 `https://tokei.nightly.pw/api/leaderboard/completion`
 
-Your request should contain an `area` as a search param. Options are `Exodus`, `Space Advanced`, `Infernus`, `Inferno`, `Nightmare`, `Glacier Advanced`, and `April Fools`
+#### Required search param: `area` 
 
-You can also optionally add a limit to the results by adding a `limit` search param. It can at most be 250 and is by default 35.
+Options are `Exodus`, `Space Advanced`, `Infernus`, `Inferno`, `Nightmare`, `Glacier Advanced`, and `April Fools`
 
-Example: to fetch the leaderboards for `Exodus` with a limit of 50, your URL would be `https://tokei.nightly.pw/api/leaderboard/completion?area=Exodus&limit=50`.
+#### Optional search param: `limit` 
+
+It can at most be 250 and is by default 35.
+
+i.e. fetching leaderboards for `Exodus` with limit 50 would give URL `https://tokei.nightly.pw/api/leaderboard/completion?area=Exodus&limit=50`.
 #### Response format
 An example response:
 ```json
@@ -56,15 +64,11 @@ An example response:
 }
 ```
 
-Each placement object contains the player's name, the UTC date time reached (YYYY/mm/dd HH:mm:ss), and the area reached.
+Date reached is encoded in (YYYY/mm/dd HH:mm:ss).
 
 ### Fetching live player count
-#### Request format
-`https://tokei.nightly.pw/api/playerCount`
-#### Response format
-Returned is a JSON object with the field `playerCount` containing the number of players at the current moment, not including the bot itself.
+Just hit the URL `https://tokei.nightly.pw/api/playerCount`, and you will get a response looking like the one below.
 
-An example response:
 ```json
 {
   "playerCount": 113
@@ -72,24 +76,24 @@ An example response:
 ```
 
 ## Running tokei-skap
-tokei-skap requires an installation of npm and Node.js
+tokei-skap requires Node and npm
 ```shell
 git clone https://github.com/premiering/tokei-skap.git
 cd tokei-skap
 npm i
 ```
-And then if you're using pm2 to manage Node processes
-```shell
-pm2 start npm -- start
-```
-Or if you just want to start it normally
+Then start it normally
 ```shell
 npm start
 ```
-That simple! Upon start, tokei-skap will setup the database (using sqlite3) and start the bot.
+Or if you're like me use pm2 to manage Node processes
+```shell
+pm2 start npm -- start
+```
+No extra setup! Note that tokei-skap uses sqlite so the .db file will be relative to your working directory.
 
 ## Configuring tokei-skap
-tokei-skap is limited in configuring. The most important things to change here are changing ports, and enabling/configuring SSL.
+Most important things to change here is the port, and SSL configuration.
 
 An example `config.env` (should be placed in the root project folder):
 ```dosini
@@ -106,6 +110,3 @@ PRIVATEKEY="/etc/coolcertificate/privkey.pem"
 CERTIFICATE="/etc/coolcertificate/fullchain.pem"
 ALLOWINVALIDSKAPSSL=true
 ```
-
-## License
-tokei-skap is licensed under the MIT license.
