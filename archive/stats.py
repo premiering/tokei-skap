@@ -14,6 +14,11 @@ player_names = set()
 play_time_ms = 0
 unique_runs = 0
 
+def ms_to_formatted(ms):
+    m, s = divmod(int(ms / 1000), 60)
+    h, m = divmod(m, 60)
+    return f'{h:d} days, {m:02d} hours, {s:02d} seconds'
+
 for table_tuple in tables:
     table = table_tuple[0]
     # Add player names to set and count unique runs
@@ -25,10 +30,9 @@ for table_tuple in tables:
     # Add play time to the sum
     if table.endswith("Timely"):
         total_run_time = cursor.execute("SELECT Sum(RunTime) AS TotalRunTime FROM " + table + ";").fetchall()
+        print(table + " play time: " + ms_to_formatted(total_run_time[0][0]))
         play_time_ms += total_run_time[0][0]
 
 print("Unique players: " + str(len(player_names)))
 
-m, s = divmod(int(play_time_ms / 1000), 60)
-h, m = divmod(m, 60)
-print(f'Timely leaderboards playtime (high scores only): {h:d} days, {m:02d} hours, {s:02d} seconds')
+print(f'Timely leaderboards playtime (high scores only): ' + ms_to_formatted(play_time_ms))
