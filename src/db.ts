@@ -39,7 +39,7 @@ export function getLastSecondaryRoomId(): string {
 
 export async function initSqlite(): Promise<void> {
     return open({
-        filename: './stats.db',
+        filename: './archive/stats.db',
         driver: sqlite3.Database
     }).then((loadedDb) => {
         db = loadedDb;
@@ -153,7 +153,7 @@ export async function getTimelyAreaLeaderboards(limit: number, area: string): Pr
 }
 
 async function onDatabaseLoad() {
-    tokeiLog("sqlite ./stats.db is loaded");
+    tokeiLog("sqlite ./archive/stats.db is loaded");
     trackedLevels.forEach((level) => {
         const tableName = getCompletionTableFromArea(level);
         tokeiDebug("creating if doesnt exist table " + tableName);

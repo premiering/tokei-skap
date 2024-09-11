@@ -1,4 +1,7 @@
 > [!WARNING]  
+> You are currently in the `archive-caching` branch, which turns tokei-skap into a tool which was used to create JSON files of the tokei leaderboard archive.
+
+> [!WARNING]  
 > The public API has been shutdown. See [archive/README.md](https://github.com/premiering/tokei-skap/tree/master/archive) for more info.
 
 # tokei-skap
