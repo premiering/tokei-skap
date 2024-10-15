@@ -98,13 +98,13 @@ No extra setup! Note that tokei-skap uses sqlite so the .db file will be relativ
 ## Configuring tokei-skap
 Most important things to change here is the port, and SSL configuration.
 
-An example `config.env` (should be placed in the root project folder):
+An example `.env` (should be placed in the root project folder):
 ```dosini
-# config.env
+# .env
 PORT=80
 SSLPORT=443
 DEBUGMODE=TRUE
-SKAPURL=ws://skap.io
+SKAPURL=wss://skap.io
 # How often in milliseconds should we ask the server what the player count is?
 PLAYERCOUNTINTERVALMS=5000
 SECONDARYOVERWORLDBOT=true
