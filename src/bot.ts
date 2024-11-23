@@ -158,8 +158,7 @@ export class OverworldBot extends Bot {
     }
 
     public connectToOverworld(data: any) {
-        const overworld = data.g[0];
-        this.socket.sendJoinGame(overworld.id);
+        this.socket.sendJoinGame(1);
     }
 }
 
