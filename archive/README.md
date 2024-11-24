@@ -1,3 +1,5 @@
+# ❗ All info below was from when the API was stopped. It is now back online!
+
 # tokei-skap Archive
 The tokei bot was stopped on 7/24/2024. In this folder is an sqlite stats.db file containing all of the tracked player data since 5/12/2024.
 
