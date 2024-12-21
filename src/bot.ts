@@ -28,6 +28,7 @@ function defaultBotState(): BotState {
 export class Bot {
     protected socket: BotSocket;
     protected botData: BotState = defaultBotState();
+    protected requestGameTimeout: NodeJS.Timeout | undefined = undefined;
 
     constructor(socket: BotSocket) {
         this.socket = socket;
@@ -37,16 +38,17 @@ export class Bot {
     public setupSocket(socket: BotSocket) {
         socket.onLogin(() => {
             tokeiLog("logged in as " + socket.getBotUsername());
-            setTimeout(() => {
+            this.requestGameTimeout = setTimeout(() => {
                 socket.sendRequestGamesList();
-            }, 1000)
+            }, 1000);
             setInterval(() => {
                 socket.sendRequestGamesList();
-            }, config.playerCountIntervalMs)
+            }, config.playerCountIntervalMs);
         });
         socket.onClose(() => {
             // Reset the state of the bot since we've been reset.
             this.botData = defaultBotState();
+            clearTimeout(this.requestGameTimeout);
         });
         socket.onPacket(GAMES_PACKET, (data: any) => { this.updatePlayerCount(data) });
         socket.onPacket(UPDATE_STATES_PACKET, (data: any) => { this.updateCompletionsLeaderboards(data) });
